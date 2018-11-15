@@ -1,7 +1,8 @@
 class TasksController < ApplicationController
   before_action :require_user_logged_in
+  before_action :correct_user, only: [:destroy]
   def index
-    @tasks = Task.all.page(params[:page])
+    @tasks = current_user.tasks.order('created_at DESC').page(params[:page])
   end
 
   def show
@@ -51,5 +52,12 @@ class TasksController < ApplicationController
    # Strong Parameter
   def task_params
     params.require(:task).permit(:content, :status)
+  end
+  
+  def correct_user
+    @micropost = current_user.microposts.find_by(id: params[:id])
+    unless @micropost
+      redirect_to root_url
+    end
   end
 end
